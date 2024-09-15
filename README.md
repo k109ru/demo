@@ -2,7 +2,7 @@
 
 1. Log in root
 ```bash
-$ su -
+su -
 ```
 
 2. Add username into /etc/sudoers
