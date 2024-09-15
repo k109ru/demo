@@ -1,0 +1,40 @@
+---
+# Block to install NVM as a non-root user !!!NEED REBOOT SYSTEM!!!
+- name: Install NVM as a non-root user
+  block:
+    - name: Download and install NVM
+      ansible.builtin.shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+      args:
+        chdir: "/home/{{user}}"  # Change to the non-root user's home directory
+      environment:
+        HOME: "/home/{{user}}"   # Set the home directory for the non-root user
+        USER: "{{user}}"
+
+    - name: Add NVM source lines to the user's bashrc
+      ansible.builtin.lineinfile:
+        path: "/home/{{user}}/.bashrc"
+        line: |
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      become: true
+      become_user: "{{user}}"
+
+    - name: Source the user's bashrc to load NVM
+      ansible.builtin.shell: |
+        . /home/{{user}}/.bashrc
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      args:
+        executable: /bin/bash
+      environment:
+        HOME: "/home/{{user}}"
+
+    - name: Verify NVM installation
+      ansible.builtin.shell: . /home/{{user}}/.nvm/nvm.sh && nvm --version
+      register: nvm_version
+
+    - name: Display installed NVM version
+      ansible.builtin.debug:
+        var: nvm_version.stdout
+  become: true  # Ensure the block runs with elevated privileges
+  become_user: "{{user}}"  # Replace with the non-root username you're using

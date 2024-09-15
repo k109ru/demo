@@ -1,0 +1,28 @@
+# 1. Install dependencies
+- name: Ensure required dependencies are installed
+  apt:
+    name:
+      - wget
+      - gnupg
+      - curl
+    state: present
+    update_cache: yes
+
+# 2. Download the Google Chrome signing key
+- name: Download Google Chrome signing key
+  shell: curl -fSsL https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor | sudo tee /usr/share/keyrings/google-chrome.gpg >> /dev/null
+
+# 3. Add Google Chrome repository
+- name: Add Google Chrome APT repository
+  shell: echo deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main | sudo tee /etc/apt/sources.list.d/google-chrome.list
+
+# 4. Update APT cache
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: yes
+
+# 5. Install Google Chrome
+- name: Install Google Chrome
+  apt:
+    name: google-chrome-stable
+    state: latest

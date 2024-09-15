@@ -1,0 +1,8 @@
+
+- name: flatpak add flathub
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+- name: install anydesk
+  community.general.flatpak:
+    name:  com.anydesk.Anydesk
+    state: present

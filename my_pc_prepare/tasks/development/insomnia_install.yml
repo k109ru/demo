@@ -1,0 +1,8 @@
+
+- name: flatpak add flathub
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+- name: install insomnia
+  community.general.flatpak:
+    name:  rest.insomnia.Insomnia
+    state: present

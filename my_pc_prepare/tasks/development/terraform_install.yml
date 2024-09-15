@@ -1,0 +1,15 @@
+
+- name: Install Terraform
+  become: true
+  copy:
+    src: terraform
+    dest: /usr/local/bin
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Configure Terraform
+  # become: true
+  copy:
+    src: .terraformrc
+    dest: /home/{{user}}

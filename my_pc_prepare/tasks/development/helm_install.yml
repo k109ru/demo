@@ -1,0 +1,27 @@
+  
+- name: Add an apt signing key for Helm
+  become: true
+  copy:
+    src: helm.gpg
+    dest: /usr/share/keyrings
+
+- name: Copy helm repo to apt
+  become: true
+  copy:
+    src: helm-stable-debian.list
+    dest: /etc/apt/sources.list.d
+
+- name : "Update apt"
+  become: true 
+  command: apt update
+
+- name: "Install helm"
+  become: true
+  apt:
+    pkg: helm
+    update_cache: true
+    cache_valid_time: 3600
+    force: true
+    state: present
+  register: helm_installed
+  until: helm_installed is succeeded

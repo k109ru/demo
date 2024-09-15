@@ -1,0 +1,79 @@
+---
+### install docker and docker compose
+- name: Install packages that allow apt to be used over https
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    - git
+    - apt-transport-https
+    - ca-certificates
+    - wget
+    - software-properties-common
+    - gnupg2
+    - curl
+
+- name: Add an apt signing key for Docker
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+- name: Setup bullseye if debian version 11
+  set_fact:
+    debian_distr: bullseye
+  when: debian_version == "11"
+
+- name: Setup bookworm if debian version 12
+  set_fact:
+    debian_distr: bookworm
+  when: debian_version == "12"
+
+
+- name: Add apt repository for stable version
+  apt_repository:
+    repo: deb [arch=amd64] https://download.docker.com/linux/debian {{ debian_distr }} stable
+    state: present
+
+- name: Index new repo into the cache
+  become: true
+  apt:
+    name: "*"
+    state: latest
+    update_cache: yes
+    force_apt_get: yes
+
+- name: Install docker and its dependecies
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars:
+    packages:
+    - docker-ce 
+    - docker-ce-cli 
+    - containerd.io
+    - docker-compose-plugin
+    - docker-compose
+    - docker-buildx-plugin
+  notify:
+    - docker status
+
+- name: Prepare docker for working with local docker-registry and another options for k8s
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    mode: 0755
+
+- name : "Docker enable service"
+  systemd:
+    name: docker.service
+    enabled: true
+    masked: no
+
+- name: Restart docker
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: docker

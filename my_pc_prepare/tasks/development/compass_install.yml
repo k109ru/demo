@@ -1,0 +1,8 @@
+
+- name: flatpak add flathub
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+- name: install compas for mongodb
+  community.general.flatpak:
+    name:  com.mongodb.Compass
+    state: present

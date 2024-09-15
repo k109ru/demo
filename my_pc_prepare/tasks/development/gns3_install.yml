@@ -1,0 +1,95 @@
+#Configure repo add non-free
+- name: Backup current sources.list
+  ansible.builtin.copy:
+    src: /etc/apt/sources.list
+    dest: /etc/apt/sources.list.backup
+    backup: yes
+
+- name: configure source list for apt
+  ansible.builtin.copy:
+    src: sources.list
+    dest: /etc/apt/sources.list
+
+#it doesn't help to install gns3 only dynamips and ubridge
+- name: configure source list gns3
+  ansible.builtin.copy:
+    src: gns3.list
+    dest: /etc/apt/sources.list.d/
+  
+- name: Add missing GPG keys
+  ansible.builtin.apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: "{{ item }}"
+    state: present
+  loop:
+    - 86C22C2EC6A24D7F
+    - 9A2FD067A2E3EF7B
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Install packages 
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg2
+    - curl
+    - g++
+    - make
+    - tar
+    - docker-buildx-plugin
+    - python3 
+    - python3-launchpadlib
+    - python3-pip
+    - python3-venv 
+    - python3-dev
+    - pipx 
+    - python3-pyqt5 
+    - python3-pyqt5.qtwebsockets 
+    - python3-pyqt5.qtsvg 
+    - python3-sip
+    - qemu-kvm 
+    - qemu-utils 
+    - libvirt-clients 
+    - libvirt-daemon-system 
+    - virtinst 
+    - dynamips
+    - ubridge
+    - cpulimit 
+    - software-properties-common 
+    - xtightvncviewer
+
+- name: Ensure python3-venv is installed
+  apt:
+    name: python3-venv
+    state: present
+
+- name: Create Python virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv /home/{{user}}/gns3-env
+    creates: /home/{{user}}/gns3-env
+
+- name: Install required Python packages in virtual environment
+  ansible.builtin.pip:
+    name:
+      - pyqt5
+      - sip
+      - gns3-gui
+      - gns3-server
+    virtualenv: /home/{{user}}/gns3-env
+
+- name: create icon for gns3 configure
+  template:
+    src: gns3.desktop.j2
+    dest: /home/{{user}}/.local/share/applications/gns3.desktop
+
+- name: create icon for gns3
+  ansible.builtin.copy:
+    src: gns3.png
+    dest: /home/{{user}}/.local/share/applications/

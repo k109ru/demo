@@ -1,0 +1,40 @@
+# 1. Install Wireshark
+- name: Install Wireshark
+  apt:
+    name: wireshark
+    state: present
+    update_cache: yes
+
+# 2. Reconfigure wireshark-common to allow non-root users to capture packets
+- name: Reconfigure wireshark-common to allow non-root users
+  debconf:
+    name: wireshark-common
+    question: wireshark-common/install-setuid
+    value: "true"
+    vtype: boolean
+
+- name: Ensure wireshark group exists
+  group:
+    name: wireshark
+    state: present
+# 3. Add the user to the wireshark group
+- name: Add user to wireshark group
+  user:
+    name: "{{user}}"
+    groups: wireshark
+    append: yes
+
+# 4. Ensure dumpcap has correct permissions
+- name: Set correct permissions on /usr/bin/dumpcap
+  file:
+    path: /usr/bin/dumpcap
+    mode: u=rwxs,g=rx,o=rx
+    owner: root
+    group: wireshark
+
+# 5. Optional: Apply new group membership without logging out
+# - name: Apply group changes without logout
+#   command: newgrp wireshark
+#   become: true
+#   become_user: "{{ user_to_add }}"
+#   ignore_errors: true

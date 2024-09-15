@@ -1,0 +1,8 @@
+
+- name: flatpak add flathub
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+- name: install whatsapp
+  community.general.flatpak:
+    name:  io.github.mimbrero.WhatsAppDesktop
+    state: present

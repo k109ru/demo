@@ -1,0 +1,2 @@
+- name: Install google chrome
+  include_tasks: chrome_install.yml

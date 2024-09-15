@@ -1,0 +1,25 @@
+---
+debian_version: "12"
+# Set up software for our pc
+install_browsers: true
+install_social_networks: true
+install_media_tools: true
+install_development_tools: true
+install_system_utils: true
+
+# your username in the system 
+user: "user"
+
+#for kvm
+libvirt_group: "libvirt"
+name_of_interface: "enp1s0"
+user_to_add: "user"
+name_of_the_bridge: "br0"
+ip4_and_mask: "192.168.1.197/24"
+gw4: "192.168.1.1"
+dns4: "192.168.1.1 8.8.8.8"
+
+# your local docker registry
+# if you have registry servers in your local network, you can set it here
+docker_registry1: "192.168.1.12:5000"
+docker_registry2: "192.168.1.13:5000"

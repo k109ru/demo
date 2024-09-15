@@ -1,0 +1,45 @@
+# task improve speed loading system
+- name: line replace
+  lineinfile:
+    #path: /etc/default/grub.d/15_timeout.cfg
+    path: /etc/default/grub
+    regexp: 'GRUB_TIMEOUT=5'
+    line: 'GRUB_TIMEOUT=1'
+
+
+- name: "Reconfigure grub"
+  # register: cmdout
+  command: update-grub
+
+# - debug:
+#     var: cmdout.stdout_lines
+
+
+- name: Configure color and name git branch
+  block:
+    - name: Add custom prompt settings to .bashrc
+      blockinfile:
+        path: /home/{{user}}/.bashrc  # Replace with the correct path if needed
+        block: |
+          # Show git branch name
+          force_color_prompt=yes
+          color_prompt=yes
+          parse_git_branch() {
+            git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/(\1)/'
+          }
+          if [ "$color_prompt" = yes ]; then
+            PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[01;31m\]$(parse_git_branch)\[\033[00m\]\$ '
+          else
+            PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(parse_git_branch)\$ '
+          fi
+          unset color_prompt force_color_prompt
+        create: yes
+  become: true  # Ensure the block runs with elevated privileges
+  become_user: "{{user}}"  # Replace with the non-root username you're using
+
+
+- name: add-architecture i386
+  command: dpkg --add-architecture i386
+
+- name: add user into groups
+  command: usermod -aG ubridge,libvirt,kvm,docker {{user}}

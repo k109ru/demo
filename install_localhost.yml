@@ -1,0 +1,14 @@
+---
+# This playbook deploys the whole application stack of k8s.
+
+
+- name: deploy start
+  hosts: localhost
+  gather_facts: yes
+  # become: yes
+  # remote_user: root
+
+  tasks:
+    - name: my_pc_prepare
+      include_role:
+        name: my_pc_prepare

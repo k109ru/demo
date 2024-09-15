@@ -1,0 +1,25 @@
+- name: Install packages 
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    # gimp image editor
+    - gimp
+    # inkscape vector graphic editor
+    - inkscape
+    # audio editor
+    - audacity
+    # audio player and lib for themes (dark and light)
+    - audacious
+    - qt5-style-kvantum
+
+- name: Install vlc
+  include_tasks: vlc_install.yml
+
+- name: Install obs studio
+  include_tasks: obs_install.yml
+
+- name: Install deluge torrent client
+  include_tasks: deluge_install.yml

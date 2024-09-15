@@ -1,0 +1,11 @@
+- name: install kubectl
+  copy:
+    src: kubectl
+    dest: /usr/local/bin/
+    mode: 0755
+
+- name: copy minikube
+  copy:
+    src: minikube-linux-amd64
+    dest: /usr/local/bin/minikube
+    mode: 0755

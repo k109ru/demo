@@ -1,0 +1,45 @@
+---
+#tasks file for my_pc_prepare
+- name: Install all dependencies
+  apt:
+    pkg: 
+      - curl
+      - apt-transport-https
+      - gnupg2
+      - nfs-common
+      - flatpak
+      - gnome-commander
+    update_cache: true
+    cache_valid_time: 3600
+    force: true
+    state: present
+  register: curl_installed
+  until: curl_installed is succeeded
+  become: true
+
+- name: Install browsers
+  include_tasks: browsers/browsers_install.yml
+  when: install_browsers == true
+
+- name: Install social networks
+  include_tasks: social_networks/social_networks_install.yml
+  when: install_social_networks == true
+
+- name: Install media tools
+  include_tasks: media/media_tools_install.yml
+  when: install_media_tools == true
+
+- name: Install development tools
+  include_tasks: development/development_tools_install.yml
+  when: install_development_tools == true
+
+- name: Install system utils and configure system
+  include_tasks: system/system_utils_install.yml
+  when: install_system_utils == true
+
+
+
+
+
+
+

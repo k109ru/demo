@@ -1,0 +1,38 @@
+- name: Get a list of all connections
+  command: nmcli -t -f NAME connection show
+  register: nmcli_connections
+
+- name: Delete all network interfaces except lo
+  community.general.nmcli:
+    conn_name: "{{ item }}"
+    state: absent
+  loop: "{{ nmcli_connections.stdout_lines }}"
+  when: item != "lo"
+
+- name: Create a bridge interface {{name_of_the_bridge}}
+  community.general.nmcli:
+    conn_name: "{{name_of_the_bridge}}"
+    ifname: "{{name_of_the_bridge}}"
+    type: bridge
+    ip4: "{{ip4_and_mask}}"
+    gw4: "{{gw4}}"
+    dns4: "{{dns4}}"
+    method6: disabled
+    state: present
+    stp: no
+
+- name: Add {{name_of_interface}} to the bridge {{name_of_the_bridge}}
+  community.general.nmcli:
+    conn_name: "{{name_of_interface}}-{{name_of_the_bridge}}"
+    ifname: "{{name_of_interface}}"
+    type: ethernet
+    master: "{{name_of_the_bridge}}"
+    slave_type: bridge
+    method4: disabled
+    method6: disabled
+    state: present
+
+# - name: Bring up the bridge interface br0
+#   community.general.nmcli:
+#     conn_name: br0
+#     state: up

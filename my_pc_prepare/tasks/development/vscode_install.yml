@@ -1,0 +1,30 @@
+- name: Install dependiencies
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    - curl
+    - apt-transport-https
+    - ca-certificates
+    - wget 
+    - gpg
+
+- name: Get vscode
+  shell: wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
+
+- name: Get gpg for vscode
+  shell: install -o root -g root -m 644 packages.microsoft.gpg /usr/share/keyrings/microsoft-archive-keyring.gpg
+
+- name: Get repo for vscode
+  shell: sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/usr/share/keyrings/microsoft-archive-keyring.gpg] https://packages.microsoft.com/repos/vscode stable main" > /etc/apt/sources.list.d/vscode.list'
+
+- name: Install dependiencies and packages for vscode
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    - code

@@ -1,0 +1,19 @@
+
+
+- name: Install whatsapp
+  include_tasks: whatsapp_install.yml
+
+- name: Install viber
+  include_tasks: viber_install.yml
+
+- name: Install telegram
+  include_tasks: telegram_install.yml
+
+- name: Install discord
+  include_tasks: discord_install.yml
+
+- name: Install Thunderbird
+  include_tasks: thunderbird_install.yml
+
+- name: Install zoom
+  include_tasks: zoom_install.yml

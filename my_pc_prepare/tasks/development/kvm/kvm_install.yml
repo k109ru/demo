@@ -1,0 +1,120 @@
+
+- name: Install dependiencies and packages for kvm
+  apt: 
+    name: "{{ packages }}"
+    state: present
+    update_cache: yes
+  vars: 
+    packages:
+    - qemu-kvm
+    - libvirt-daemon-system
+    - libvirt-clients
+    - bridge-utils
+    - virtinst
+    - libvirt-daemon
+    - iptables-persistent
+    - spice-vdagent
+    - virt-manager
+    - spice-client-gtk
+    - virt-viewer
+
+### Set up iptables for network access from the VM
+# ansible configure iptables like this-  
+# sudo iptables -F FORWARD 
+# sudo iptables -A FORWARD -i br0 -o br0 -j ACCEPT
+# sudo iptables -A FORWARD -i enp6s0 -o vnet1 -j ACCEPT
+# sudo iptables -A FORWARD -i vnet1 -o enp6s0 -j ACCEPT
+- name: Flush the FORWARD chain
+  ansible.builtin.iptables:
+    chain: FORWARD
+    flush: true
+
+- name: Accept traffic on br0 in both directions
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: br0
+    out_interface: br0
+    jump: ACCEPT
+
+- name: Accept traffic from {{name_of_interface}} to vnet1
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: "{{name_of_interface}}"
+    out_interface: vnet1
+    jump: ACCEPT
+
+- name: Accept traffic from vnet1 to {{name_of_interface}}
+  ansible.builtin.iptables:
+    chain: FORWARD
+    in_interface: vnet1
+    out_interface: "{{name_of_interface}}"
+    jump: ACCEPT
+
+- name: Ensure net.ipv4.ip_forward is enabled
+  ansible.builtin.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present
+    reload: yes  # Applies the setting immediately
+
+- name: Ensure IP forwarding is enabled on boot
+  ansible.builtin.lineinfile:
+    path: /etc/sysctl.conf
+    regexp: '^net.ipv4.ip_forward'
+    line: 'net.ipv4.ip_forward=1'
+    state: present
+
+### add the current user to the libvirt group (in my case user)
+- name: Check if libvirt or libvirtd group exists
+  ansible.builtin.command: getent group | grep -E 'libvirt|libvirtd'
+  register: libvirt_group_check
+  ignore_errors: true
+
+- name: Create libvirt group if not present
+  ansible.builtin.group:
+    name: "{{ libvirt_group }}"
+    system: yes
+    state: present
+  when: libvirt_group_check.rc != 0
+
+- name: Add the current user to the libvirt group
+  ansible.builtin.user:
+    name: "{{user}}"
+    groups: "{{ libvirt_group }}"
+    append: yes
+
+- name: Ensure the user is in the correct groups
+  ansible.builtin.command:
+    cmd: "newgrp {{ libvirt_group }}"
+
+- name: Verify user is added to libvirt group
+  ansible.builtin.command:
+    cmd: "id {{user}}"
+  register: user_group_check
+  changed_when: false
+
+- name: Display user group membership
+  debug:
+    msg: "{{ user_group_check.stdout }}"
+
+- name: Edit /etc/libvirt/libvirtd.conf - unix_sock_group
+  ansible.builtin.lineinfile:
+    path: /etc/libvirt/libvirtd.conf
+    regexp: '^#?unix_sock_group'
+    line: 'unix_sock_group = "{{ libvirt_group }}"'
+    state: present
+
+- name: Edit /etc/libvirt/libvirtd.conf - unix_sock_rw_perms
+  ansible.builtin.lineinfile:
+    path: /etc/libvirt/libvirtd.conf
+    regexp: '^#?unix_sock_rw_perms'
+    line: 'unix_sock_rw_perms = "0770"'
+    state: present
+
+- name: Restart libvirtd service
+  ansible.builtin.systemd:
+    name: libvirtd
+    state: restarted
+
+- name: Configure our network interface for kvm (br0)
+  include_tasks: network_configure.yml
