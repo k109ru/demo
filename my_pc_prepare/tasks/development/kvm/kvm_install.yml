@@ -14,6 +14,7 @@
     - libvirt-daemon
     - iptables-persistent
     - virt-viewer
+    - virt-manager
 
 ### Set up iptables for network access from the VM
 # ansible configure iptables like this-  

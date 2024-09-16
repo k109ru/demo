@@ -4,3 +4,9 @@
     path: /opt/myportainer/portainer_data
     state: directory
     mode: '0755'
+
+- name: Start portainer
+  command: docker run -d --restart=always --name myportainer -p 8000:8000 \
+        -p 9443:9443 -e TZ=Europe/Moscow \
+        -v /opt/myportainer/portainer_data:/data \
+        portainer/portainer-ce:latest 
