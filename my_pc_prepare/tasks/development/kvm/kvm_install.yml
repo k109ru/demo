@@ -13,9 +13,6 @@
     - virtinst
     - libvirt-daemon
     - iptables-persistent
-    - spice-vdagent
-    - virt-manager
-    - spice-client-gtk
     - virt-viewer
 
 ### Set up iptables for network access from the VM
