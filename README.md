@@ -30,6 +30,9 @@ apt update
 ```bash
 apt install ansible
 ```
+```bash
+exit
+```
 
 4. Get from github playbook for preparing your computer.
 ```bash
@@ -54,8 +57,9 @@ output example
 Your network interface is enp1s0 (in this case)
 
 ```bash
-cd my_pc_prepare/defaults
+nano my_pc_prepare/defaults/main.yml
 ```
+
 Example:
 ```yml
 ---
