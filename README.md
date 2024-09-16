@@ -25,6 +25,7 @@ wget -qO- "https://keyserver.ubuntu.com/pks/lookup?fingerprint=on&op=get&search=
 echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa.launchpad.net/ansible/ansible/ubuntu jammy main" | sudo tee /etc/apt/sources.list.d/ansible.list
 ```
 ```bash
+apt update
 apt install ansible
 ```
 

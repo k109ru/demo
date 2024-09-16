@@ -1,5 +1,5 @@
 
-- name: Install dependiencies and packages for kvm
+- name: Install dependencies and packages for kvm
   apt: 
     name: "{{ packages }}"
     state: present
