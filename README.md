@@ -26,6 +26,8 @@ echo "deb [signed-by=/usr/share/keyrings/ansible-archive-keyring.gpg] http://ppa
 ```
 ```bash
 apt update
+```
+```bash
 apt install ansible
 ```
 
